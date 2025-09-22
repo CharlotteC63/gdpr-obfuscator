@@ -6,4 +6,4 @@ from src.dummy_file import dummy
     )
 def test_dummy():
     result = dummy()
-    assert r
+    assert result == True
