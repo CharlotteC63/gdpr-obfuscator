@@ -1,0 +1,35 @@
+name: CI
+
+on: 
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main 
+
+jobs:
+  run-tests:
+    name: ci_jobs
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Requirements
+      run: make requirements
+
+    - name: Dev setup
+      run: make dev-setup
+
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+
+    - name: Run checks
+      run: make run-checks
