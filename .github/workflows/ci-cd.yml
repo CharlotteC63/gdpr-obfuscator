@@ -22,9 +22,14 @@ jobs:
       with:
         python-version: '3.13'
 
-    - name: Run all checks in venv
-      run: |
-        export PYTHONPATH="${{ github.workspace }}"
-        make requirements
-        make dev-setup
-        make run-checks
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+      
+    - name: Requirements
+      run: make requirements
+
+    - name: Dev setup
+      run: make dev-setup
+
+    - name: Run checks
+      run: make run-checks
