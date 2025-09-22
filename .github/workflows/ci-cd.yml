@@ -24,7 +24,7 @@ jobs:
 
     - name: Run all checks in venv
       run: |
+        export PYTHONPATH="${{ github.workspace }}"
         make requirements
         make dev-setup
-        echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
         make run-checks
