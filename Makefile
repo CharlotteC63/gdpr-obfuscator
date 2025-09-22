@@ -45,7 +45,6 @@ requirements: create-environment
 ifeq ($(CI),true)
 	$(PIP) install -r requirements.txt
 else
-	
 	$(call execute_in_env, pip install -r requirements.txt)
 endif # Dev setup tools: bandit, black, pytest-cov
 dev-setup:
