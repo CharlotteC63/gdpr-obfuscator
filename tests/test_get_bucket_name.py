@@ -69,26 +69,44 @@ class TestGetBucketName:
         # violation: contains underscore
         with pytest.raises(ValueError) as err1:
             get_bucket_name("s3://test_bucket/new_data/file.csv")
-        assert str(err1.value) == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        assert (
+            str(err1.value)
+            == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        )
         # violation: contains special character !
         with pytest.raises(ValueError) as err2:
             get_bucket_name("s3://test!bucket/new_data/file.csv")
-        assert str(err2.value) == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        assert (
+            str(err2.value)
+            == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        )
         # violation: contains special character @
         with pytest.raises(ValueError) as err3:
             get_bucket_name("s3://@testbucket/new_data/file.csv")
-        assert str(err3.value) == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        assert (
+            str(err3.value)
+            == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        )
         # violation: contains fewer than 3 characters
         with pytest.raises(ValueError) as err4:
             get_bucket_name("s3://tb/new_data/file.csv")
-        assert str(err4.value) == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        assert (
+            str(err4.value)
+            == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        )
         # violation: contains more than 63 characters
         with pytest.raises(ValueError) as err5:
             get_bucket_name(
                 "s3://testbuckettttttttttttttttttttttttttttttttttttttttttttttttttttttt/new_data/file.csv"
             )
-        assert str(err5.value) == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        assert (
+            str(err5.value)
+            == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        )
         # violation: contains uppercase character
         with pytest.raises(ValueError) as err6:
             get_bucket_name("s3://TestBucket/new_data/file.csv")
-        assert str(err6.value) == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        assert (
+            str(err6.value)
+            == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        )

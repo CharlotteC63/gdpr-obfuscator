@@ -4,7 +4,6 @@ from src.utils.get_file_key import get_file_key
 
 class TestGetFileKey:
 
-
     @pytest.mark.it(
         "When passed with a path in S3 URI format, returns correct key name"
     )
@@ -29,9 +28,7 @@ class TestGetFileKey:
         result = get_file_key(test_path)
         assert result == "new_data/file.csv"
 
-    @pytest.mark.it(
-        "When passed with a path in ARN format, returns correct key name"
-    )
+    @pytest.mark.it("When passed with a path in ARN format, returns correct key name")
     def test_returns_key_name_from_path_in_ARN_format(self):
         test_path = "arn:aws:s3:::test-bucket/new_data/file.csv"
         result = get_file_key(test_path)
@@ -41,8 +38,11 @@ class TestGetFileKey:
         "When passed with a path containing a key name that is over 1024 bytes in UTF-8, violating AWS guidelines, raises ValueError"
     )
     def test_raise_ValueError_when_key_name_exceeds_maximum_bytes(self):
-        test_key = ("a" * 1025)
+        test_key = "a" * 1025
         test_path = f"s3://test-bucket/{test_key}"
         with pytest.raises(ValueError) as err:
             get_file_key(test_path)
-        assert str(err.value) == "S3 object key exceeds the maximum length of 1,024 bytes (UTF-8 encoded)"
+        assert (
+            str(err.value)
+            == "S3 object key exceeds the maximum length of 1,024 bytes (UTF-8 encoded)"
+        )
