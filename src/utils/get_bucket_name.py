@@ -10,11 +10,11 @@ def get_bucket_name(path: str):
     Parameters
     ----------
     path : str
-        The path to the location of the file to be obfuscated. 
+        The path to the location of the file to be obfuscated.
         Must be in s3://..., arn:..., or https://... format.
 
     Returns
-    ---------- 
+    ----------
     str
         A string of the s3 bucket name.
 
@@ -69,12 +69,12 @@ def check_validity_of_s3_bucket_name(bucket_name: str):
         A bucket name to be checked according to the main AWS s3 bucket naming rules.
 
     Returns
-    ---------- 
+    ----------
     bool
         True: if the name passed adheres to s3 bucket naming rules.
         False: if the name passed violates one of the s3 bucket naming rules:
         - contains fewer than 3, or more than 63 characters.
-        - contains special characters (<!?/\@#$%&*&+=`~>)
+        - contains special characters.
         - contains uppercase characters.
         - contains an underscore.
         - contains two adjacent periods.

@@ -28,14 +28,11 @@ class TestGetFileKey:
         result = get_file_key(test_path)
         assert result == "new_data/file.csv"
 
-    @pytest.mark.it(
-        "When passed with a path in ARN format, returns correct key name"
-    )
+    @pytest.mark.it("When passed with a path in ARN format, returns correct key name")
     def test_returns_key_name_from_path_in_ARN_format(self):
         test_path = "arn:aws:s3:::test-bucket/new_data/file.csv"
         result = get_file_key(test_path)
         assert result == "new_data/file.csv"
-
 
     @pytest.mark.it(
         "When passed with a path where the key does not follow the bucket name, raises ValueError"
@@ -44,10 +41,7 @@ class TestGetFileKey:
         test_path = "s3://test-bucket/"
         with pytest.raises(ValueError) as err:
             get_file_key(test_path)
-        assert (
-            str(err.value)
-            == "Key not found after bucket name"
-        )
+        assert str(err.value) == "Key not found after bucket name"
 
     @pytest.mark.it(
         "When passed with a path containing a key name that is over 1024 bytes in UTF-8, violating AWS guidelines, raises ValueError"
@@ -61,11 +55,11 @@ class TestGetFileKey:
             str(err.value)
             == "S3 object key exceeds the maximum length of 1,024 bytes (UTF-8 encoded)"
         )
-    
+
     @pytest.mark.it(
         "When passed with a path containing an invalid bucket_name, raises ValueError"
     )
     def test_raise_ValueError_when_invalid_bucket_name_passed(self):
-        test_path = f"s3://Test_Bucket!/new_data/file.csv"
-        with pytest.raises(ValueError) as err:
+        test_path = "s3://Test_Bucket!/new_data/file.csv"
+        with pytest.raises(ValueError):
             get_file_key(test_path)

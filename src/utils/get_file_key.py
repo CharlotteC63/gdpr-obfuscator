@@ -8,11 +8,11 @@ def get_file_key(path):
     Parameters
     ----------
     path : str
-        The path to the location of the file to be obfuscated. 
+        The path to the location of the file to be obfuscated.
         Must be in s3://..., arn:..., or https://... format.
 
     Returns
-    ---------- 
+    ----------
     str
         A string of the file key.
 
@@ -22,9 +22,9 @@ def get_file_key(path):
         - When the bucket name in the path is invalid.
         - When the path format is not recognised.
         - When the path contains no key after the bucket name.
-        - When the key exceeds the maximum length of 1,024 bytes (UTF-8 encoded), 
+        - When the key exceeds the maximum length of 1,024 bytes (UTF-8 encoded),
           according to AWS published rules.
-    
+
     """
     bucket_name = get_bucket_name(path)
     key = None
@@ -42,9 +42,7 @@ def get_file_key(path):
             key = path.split(f"{bucket_name}.s3.amazonaws.com/", 1)[1]
 
     if key == "":
-        raise ValueError(
-            "Key not found after bucket name"
-        )
+        raise ValueError("Key not found after bucket name")
 
     if len(key.encode("utf-8")) > 1024:
         raise ValueError(
@@ -52,4 +50,3 @@ def get_file_key(path):
         )
 
     return key
-        
