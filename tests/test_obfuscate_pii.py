@@ -1,22 +1,22 @@
 import pytest
+import pandas as pd
 from src.utils.obfuscate_pii import obfuscate_pii
 
 
 @pytest.fixture
-def simple_file_contents():
-    return [
-        {
-            "student_id": 1234,
-            "name": "John Smith",
-            "course": "Software",
-            "cohort_graduation_date": "2025-03-17",
-        }
-    ]
+def simple_df():
+    data = {
+        "student_id": 1234,
+        "name": "John Smith",
+        "course": "Software",
+        "cohort_graduation_date": "2025-03-17",
+    }
+    return pd.DataFrame([data])
 
 
 @pytest.fixture
-def multiple_file_contents():
-    return [
+def multiple_row_df():
+    data = [
         {
             "student_id": 1234,
             "name": "John Smith",
@@ -36,11 +36,12 @@ def multiple_file_contents():
             "cohort_graduation_date": "2025-06-23",
         },
     ]
+    return pd.DataFrame(data)
 
 
 @pytest.fixture
-def file_contents_with_varied_keys():
-    return [
+def varied_columns_dataframe():
+    data = [
         {
             "student_id": 1234,
             "name": "John Smith",
@@ -53,178 +54,127 @@ def file_contents_with_varied_keys():
             "name": "Amy Carol",
             "course": "Software",
             "cohort_graduation_date": "2025-03-17",
+            "email_address": "",
         },
         {
             "student_id": 2222,
-            "name": "Louisa Harthorne",
+            "name": "",
             "course": "Data Engineering",
             "cohort_graduation_date": "2025-06-23",
             "email_address": "l.harthorne@email.com",
         },
     ]
+    return pd.DataFrame(data)
 
 
-class TestGetFileKey:
+class TestObfuscatePII:
+
+    @pytest.mark.it("When passed with a dataframe, returns a dataframe")
+    def test_returns_dataframe_when_passed_with_dataframe(self, simple_df):
+        result = obfuscate_pii(simple_df, ["name"])
+        assert isinstance(result, pd.DataFrame)
+
+    @pytest.mark.it("When passed with an empty dataframe, returns an empty dataframe")
+    def test_returns_empty_dataframe_when_passed_with_empty_dataframe(self, simple_df):
+        empty_df = pd.DataFrame()
+        result = obfuscate_pii(empty_df, ["name"])
+        assert result is empty_df
 
     @pytest.mark.it(
-        "When passed with an empty list for file_content, returns an empty list"
+        """When passed with a dataframe, returns a mutated version of the dataframe, as opposed to a new dataframe, for
+        security reasons (so that PII is not saved in memory)"""
     )
-    def test_returns_empty_list_when_file_contents_is_empty_list(self):
-        file_contents = []
-        pii_fields = ["name", "email_address"]
-        result = obfuscate_pii(file_contents, pii_fields)
-        assert result == []
+    def test_returns_mutated_dataframe(self, simple_df):
+        result = obfuscate_pii(simple_df, ["name"])
+        assert result is simple_df
 
     @pytest.mark.it(
-        "When passed with an empty list for pii_fields, returns file_contents unchanged"
+        "When passed with a dataframe and pii_fields is an empty list, returns same dataframe"
     )
-    def test_returns_empty_list_when_pii_fields_is_empty_list(
-        self, simple_file_contents
+    def test_returns_same_dataframe_when_pii_fields_is_empty_list(self, simple_df):
+        result = obfuscate_pii(simple_df, [])
+        assert result is simple_df
+
+    @pytest.mark.it(
+        "When passed with a dataframe that doesn't contain column headings matching pii_fields, returns same dataframe"
+    )
+    def test_returns_same_dataframe_when_pii_fields_not_in_dataframe(self, simple_df):
+        result = obfuscate_pii(simple_df, ["phone number"])
+        assert result is simple_df
+
+    @pytest.mark.it(
+        """When passed with a one-row dataframe that contains one pii_field, returns a dataframe with the same data but
+        with that one column obscufated"""
+    )
+    def test_returns_one_row_dataframe_with_one_pii_field_obfuscated(self, simple_df):
+        result = obfuscate_pii(simple_df, ["name"])
+        assert len(result.index) == 1
+        assert len(result.columns) == 4
+        assert isinstance(result, pd.DataFrame)
+        assert result.iloc[0]["name"] == "***"
+        assert result.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert result.iloc[0]["student_id"] == 1234
+        assert result.iloc[0]["course"] == "Software"
+
+    @pytest.mark.it(
+        """When passed with a one-row dataframe that contains two pii_fields, returns a dataframe with the same data
+        but with those two pii columns obscufated"""
+    )
+    def test_returns_one_row_dataframe_with_two_pii_fields_obfuscated_and_rest_unchanged(
+        self, simple_df
     ):
-        pii_fields = []
-        result = obfuscate_pii(simple_file_contents, pii_fields)
-        assert result == [
-            {
-                "student_id": 1234,
-                "name": "John Smith",
-                "course": "Software",
-                "cohort_graduation_date": "2025-03-17",
-            }
-        ]
+        result = obfuscate_pii(simple_df, ["name", "cohort_graduation_date"])
+        assert isinstance(result, pd.DataFrame)
+        assert len(result.index) == 1
+        assert len(result.columns) == 4
+        assert result.iloc[0]["name"] == "***"
+        assert result.iloc[0]["cohort_graduation_date"] == "***"
+        assert result.iloc[0]["student_id"] == 1234
+        assert result.iloc[0]["course"] == "Software"
 
     @pytest.mark.it(
-        """When passed with file_contents that is a list containing one dict, and pii_fields that contains
-        a single field name in a list, returns dict of obfuscated data
-        """
+        """When passed with a multiple-row dataframe that contains one pii_field, returns a dataframe with the same
+        data, but with that pii column obfuscated"""
     )
-    def test_returns_list_of_obfuscated_data_for_one_data_point_and_one_pii_field(
-        self, simple_file_contents
+    def test_returns_multiple_row_dataframe_with_one_pii_field_obfuscated_and_rest_unchanged(
+        self, multiple_row_df
     ):
-        pii_fields = ["name"]
-        result = obfuscate_pii(simple_file_contents, pii_fields)
-        assert result == [
-            {
-                "student_id": 1234,
-                "name": "***",
-                "course": "Software",
-                "cohort_graduation_date": "2025-03-17",
-            }
-        ]
+        result = obfuscate_pii(multiple_row_df, ["name"])
+        assert isinstance(result, pd.DataFrame)
+        assert len(result.index) == 3
+        assert len(result.columns) == 4
+        assert result.iloc[0]["name"] == "***"
+        assert result.iloc[1]["name"] == "***"
+        assert result.iloc[2]["name"] == "***"
 
     @pytest.mark.it(
-        """When passed with file_contents that is a list containing multiple dicts, and pii_fields that contains
-        a single field name in a list, returns dict of obfuscated data
-        """
+        "When passed with a multiple-row dataframe that contains only one of the two pii_fields, returns same dataframe with that column obscufated"
     )
-    def test_returns_list_of_obfuscated_data_for_multiple_data_points_and_one_pii_field(
-        self, multiple_file_contents
+    def test_returns_multiple_row_dataframe_with_one_pii_field_obfuscated(
+        self, multiple_row_df
     ):
-        pii_fields = ["name"]
-        result = obfuscate_pii(multiple_file_contents, pii_fields)
-        assert result == [
-            {
-                "student_id": 1234,
-                "name": "***",
-                "course": "Software",
-                "cohort_graduation_date": "2025-03-17",
-            },
-            {
-                "student_id": 1111,
-                "name": "***",
-                "course": "Software",
-                "cohort_graduation_date": "2025-03-17",
-            },
-            {
-                "student_id": 2222,
-                "name": "***",
-                "course": "Data Engineering",
-                "cohort_graduation_date": "2025-06-23",
-            },
-        ]
+        result = obfuscate_pii(multiple_row_df, ["course", "phone number"])
+        assert isinstance(result, pd.DataFrame)
+        assert len(result.index) == 3
+        assert len(result.columns) == 4
+        assert result.iloc[0]["course"] == "***"
+        assert result.iloc[1]["course"] == "***"
+        assert result.iloc[2]["course"] == "***"
+        assert "phone number" not in result.columns
 
     @pytest.mark.it(
-        """When passed with file_contents that is a list containing multiple dicts, and pii_fields that contains
-        multiple field names in a list, returns dict of obfuscated data
-        """
+        "When passed with a dataframe that contains empty rows or missing data, returns pii obfuscated"
     )
-    def test_returns_list_of_obfuscated_data_for_multiple_data_points_and_multiple_pii_fields(
-        self, multiple_file_contents
+    def test_returns_correct_data_obfuscated_when_dataframe_has_empty_rows(
+        self, varied_columns_dataframe
     ):
-        pii_fields = ["name", "course", "cohort_graduation_date"]
-        result = obfuscate_pii(multiple_file_contents, pii_fields)
-        assert result == [
-            {
-                "student_id": 1234,
-                "name": "***",
-                "course": "***",
-                "cohort_graduation_date": "***",
-            },
-            {
-                "student_id": 1111,
-                "name": "***",
-                "course": "***",
-                "cohort_graduation_date": "***",
-            },
-            {
-                "student_id": 2222,
-                "name": "***",
-                "course": "***",
-                "cohort_graduation_date": "***",
-            },
-        ]
-
-    @pytest.mark.it(
-        "When passed with a pii field to be obscured that does not appear in every dict, returns correct output"
-    )
-    def test_returns_list_of_obfuscated_data_when_pii_field_to_be_obscured_does_not_appear_in_every_dict(
-        self, file_contents_with_varied_keys
-    ):
-        pii_fields = ["email_address"]
-        result = obfuscate_pii(file_contents_with_varied_keys, pii_fields)
-        assert result == [
-            {
-                "student_id": 1234,
-                "name": "John Smith",
-                "course": "Software",
-                "cohort_graduation_date": "2025-03-17",
-                "email_address": "***",
-            },
-            {
-                "student_id": 1111,
-                "name": "Amy Carol",
-                "course": "Software",
-                "cohort_graduation_date": "2025-03-17",
-            },
-            {
-                "student_id": 2222,
-                "name": "Louisa Harthorne",
-                "course": "Data Engineering",
-                "cohort_graduation_date": "2025-06-23",
-                "email_address": "***",
-            },
-        ]
-
-    @pytest.mark.it(
-        "When passed with a pii field not contained in the file_contents, returns file_contents unchanged"
-    )
-    def test_returns_unchanged_file_contents_when_pii_field_does_not_appear_in_file_contents(
-        self, simple_file_contents
-    ):
-        pii_fields = ["phone_number"]
-        result = obfuscate_pii(simple_file_contents, pii_fields)
-        assert result == [
-            {
-                "student_id": 1234,
-                "name": "John Smith",
-                "course": "Software",
-                "cohort_graduation_date": "2025-03-17",
-            }
-        ]
-
-    @pytest.mark.it(
-        "When PII is obfuscated using the function, the input, file_contents, is mutated so that PII is not stored in memory"
-    )
-    def test_file_contents_input_is_mutated(self, simple_file_contents):
-        pii_fields = ["email_address"]
-        result = obfuscate_pii(simple_file_contents, pii_fields)
-        assert result is simple_file_contents
+        result = obfuscate_pii(varied_columns_dataframe, ["name", "email_address"])
+        assert isinstance(result, pd.DataFrame)
+        assert len(result.index) == 3
+        assert len(result.columns) == 5
+        assert result.iloc[0]["name"] == "***"
+        assert result.iloc[1]["name"] == "***"
+        assert result.iloc[2]["name"] == "***"
+        assert result.iloc[0]["email_address"] == "***"
+        assert result.iloc[1]["email_address"] == "***"
+        assert result.iloc[2]["email_address"] == "***"
