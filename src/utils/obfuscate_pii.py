@@ -1,29 +1,33 @@
-def obfuscate_pii(file_contents: list, pii_fields: list):
+import pandas as pd
+
+
+def obfuscate_pii(all_file_data_df: pd.DataFrame, pii_fields: list):
     """
-    Takes a dict of data and obfuscates personally identifiable information. The function overwrites PII
-    fields in-place (i.e. it mutates the input, file_contents) for security reasons, so that PII details
-    are not stored in memory.
+    Takes a pandas dataframe of a file's contents and obfuscates personally identifiable information. The function
+    overwrites PII fields in-place (i.e. it mutates the input, all_file_data_df) for security reasons, so that PII
+    details are not stored in memory after the function is run.
 
     Parameters
     ----------
-    file_contents : lst
-        A list of dictionaries of the file's complete contents.
+    all_file_data_df : df
+        A pandas dataframe of the file's complete contents.
     pii_fields: lst
-        A list of the fields to be obfuscated.
+        A list of strings of the field names to be obfuscated.
 
     Returns
     ----------
-    dict
-        A list of the file's obduscated contents within dictionaries (with all pii keys' values replaced
-        with the string, '***').
+    obfuscated_data_df
+        A dataframe of the file's obduscated contents, with all pii columns' rows replaced
+        with the string, '***'.
 
     """
-    if [] in (file_contents, pii_fields):
-        return file_contents
-
-    for person in file_contents:
-        for field in pii_fields:
-            if field in person:
-                person[field] = "***"
-
-    return file_contents
+    if all_file_data_df.empty or not pii_fields:
+        return all_file_data_df
+    contains_pii = False
+    for pii_field in pii_fields:
+        if pii_field in all_file_data_df.columns:
+            contains_pii = True
+            all_file_data_df[pii_field] = "***"
+    if contains_pii is False:
+        return all_file_data_df
+    return all_file_data_df
