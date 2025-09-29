@@ -5,3 +5,4 @@ dotenv
 boto3
 moto
 pandas
+pyarrow
