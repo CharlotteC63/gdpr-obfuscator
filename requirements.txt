@@ -3,6 +3,6 @@ pytest-testdox
 pg8000
 dotenv
 boto3
-moto[s3]
+moto
 pandas
 pyarrow
