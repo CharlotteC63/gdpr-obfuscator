@@ -46,7 +46,7 @@ lint:
 
 ## Run audit
 audit:
-	venv/bin/pip-audit
+	venv/bin/pip-audit -r requirements.txt
 
 ## Run all checks
 run-checks: security-test run-black lint unit-test check-coverage audit
