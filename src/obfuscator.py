@@ -83,12 +83,6 @@ class Obfuscator:
         ----------
         pd.DataFrame
             A copy of the file contents in a dataframe, with columns containing PII obfuscated.
-
-        Raises
-        ------
-        NotImplementedError
-            If no sound is set for the animal or passed in as a
-            parameter.
         """
         if self.__file_contents_df.empty:
             raise NoPIIFoundInFile("The specified PII fields were not found in the specified file")
