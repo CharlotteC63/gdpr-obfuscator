@@ -1,4 +1,5 @@
 import os
+import io
 import boto3
 import pytest
 import pandas as pd
@@ -92,9 +93,11 @@ class TestGetObfuscatedDFMethod:
         assert str(err.value) == "The file does not contain any of the specified PII fields"
 
     @pytest.mark.it(
-        "Returns correct dataframe for short csv file with one column of pii"
+        """When passed with a one-row csv file that contains one pii field, returns a dataframe with the same data
+        but with those two pii columns obscufated"""
     )
-    def test_returns_correct_dataframe_for_short_csv_file_with_one_column_of_pii(self,s3,bucket):
+    @mock_aws
+    def test_returns_correct_dataframe_for_short_csv_file_with_one_pii_field(self,s3,bucket):
         obfuscator = Obfuscator('s3://test-bucket/new_data/short_test_file.csv',['name'])
         obfuscated_df = obfuscator.get_obfuscated_df()
         assert len(obfuscated_df.index) == 1
@@ -104,3 +107,262 @@ class TestGetObfuscatedDFMethod:
         assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
         assert obfuscated_df.iloc[0]["student_id"] == 1234
         assert obfuscated_df.iloc[0]["course"] == "Software"
+        assert obfuscated_df.iloc[0]["email_address"] == "j.smith@email.com"
+
+    @pytest.mark.it(
+        """When passed with a one-row csv file that contains two pii fields, returns a dataframe with the same data
+        but with those two pii columns obscufated"""
+    )
+    @mock_aws
+    def test_returns_correct_dataframe_for_short_csv_file_with_two_pii_fields(
+        selfs3,bucket
+    ):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/short_test_file.csv",["name","email_address"])
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert len(obfuscated_df.index) == 1
+        assert len(obfuscated_df.columns) == 5
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[0]["student_id"] == 1234
+        assert obfuscated_df.iloc[0]["course"] == "Software"
+        assert obfuscated_df.iloc[0]["email_address"] == "***"
+
+    @pytest.mark.it(
+        """When passed with a multiple-row csv file that contains one pii field, returns a dataframe with the same
+        data, but with that pii column obfuscated"""
+    )
+    @mock_aws
+    def test_returns_correct_dataframe_for_long_csv_file_with_one_pii_field(
+        self,s3,bucket
+    ):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/long_test_file.csv",["name"])
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert len(obfuscated_df.index) == 100
+        assert len(obfuscated_df.columns) == 5
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[1]["name"] == "***"
+        assert obfuscated_df.iloc[1]["student_id"] == 5678
+        assert obfuscated_df.iloc[2]["name"] == "***"
+        assert obfuscated_df.iloc[2]["course"] == "Cybersecurity"
+
+    @pytest.mark.it(
+        """When passed with a multiple-row csv file that contains two pii fields, returns a dataframe with the same
+        data, but with those pii columns obfuscated"""
+    )
+    @mock_aws
+    def test_returns_multiple_row_dataframe_with_one_pii_field_obfuscated(
+        self,s3,bucket
+    ):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/long_test_file.csv",["name","email_address"])
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert len(obfuscated_df.index) == 100
+        assert len(obfuscated_df.columns) == 5
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[0]["email_address"] == "***"
+        assert obfuscated_df.iloc[1]["name"] == "***"
+        assert obfuscated_df.iloc[1]["student_id"] == 5678
+        assert obfuscated_df.iloc[1]["email_address"] == "***"
+        assert obfuscated_df.iloc[2]["name"] == "***"
+        assert obfuscated_df.iloc[2]["course"] == "Cybersecurity"
+        assert obfuscated_df.iloc[3]["email_address"] == "***"
+
+    @pytest.mark.it(
+        """When passed with a one-row json file that contains one pii field, returns a dataframe with the same data
+        but with that pii column obscufated"""
+    )
+    @mock_aws
+    def test_returns_correct_dataframe_for_short_csv_file_with_one_pii_field(self,s3,bucket):
+        obfuscator = Obfuscator('s3://test-bucket/new_data/short_test_file.json',['name'])
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert len(obfuscated_df.index) == 1
+        assert len(obfuscated_df.columns) == 5
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[0]["student_id"] == 1234
+        assert obfuscated_df.iloc[0]["course"] == "Software"
+        assert obfuscated_df.iloc[0]["email_address"] == "j.smith@email.com"
+
+    @pytest.mark.it(
+        """When passed with a one-row json file that contains two pii fields, returns a dataframe with the same data
+        but with those two pii columns obscufated"""
+    )
+    @mock_aws
+    def test_returns_correct_dataframe_for_short_json_file_with_two_pii_fields(
+        selfs3,bucket
+    ):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/short_test_file.json",["name","email_address"])
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert len(obfuscated_df.index) == 1
+        assert len(obfuscated_df.columns) == 5
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[0]["student_id"] == 1234
+        assert obfuscated_df.iloc[0]["course"] == "Software"
+        assert obfuscated_df.iloc[0]["email_address"] == "***"
+
+    @pytest.mark.it(
+        """When passed with a multiple-row json file that contains one pii field, returns a dataframe with the same
+        data, but with that pii column obfuscated"""
+    )
+    @mock_aws
+    def test_returns_correct_dataframe_for_long_csv_file_with_one_pii_field(
+        self,s3,bucket
+    ):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/long_test_file.json",["name"])
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert len(obfuscated_df.index) == 2 # CHECK THIS
+        assert len(obfuscated_df.columns) == 6 # CHECK THIS
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[1]["name"] == "***"
+        assert obfuscated_df.iloc[1]["student_id"] == 2222
+        # ADD MORE ASSERTIONS HERE
+
+    @pytest.mark.it(
+        """When passed with a multiple-row json file that contains two pii fields, returns a dataframe with the same
+        data, but with those pii columns obfuscated"""
+    )
+    @mock_aws
+    def test_returns_multiple_row_dataframe_with_one_pii_field_obfuscated(
+        self,s3,bucket
+    ):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/long_test_file.json",["name","email_address"])
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert len(obfuscated_df.index) == 2 # CHECK THIS
+        assert len(obfuscated_df.columns) == 6 # CHECK THIS
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[0]["email_address"] == "***"
+        assert obfuscated_df.iloc[1]["name"] == "***"
+        assert obfuscated_df.iloc[1]["student_id"] == 2222
+        assert obfuscated_df.iloc[1]["email_address"] == "***"
+        # ADD MORE ASSERTIONS HERE
+
+# TEST WITH DIFFERENT JSON FORMAT TYPES
+# TEST WITH PARQUET
+
+
+class TestGetObfuscatedBytestreamMethod:
+
+    @pytest.mark.it(
+        "Raises TypeError with appropriate message when passed with any object other than a dataframe"
+    )
+    @mock_aws
+    def test_raises_TypeError_when_passed_with_object_that_is_not_dataframe(self,s3,bucket):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/short_test_file.csv",["name","email_address"])
+        with pytest.raises(TypeError) as err:
+            obfuscator.get_obfuscated_bytestream([])
+        assert str(err.value) == "Expected dataframe but received <class 'list'>"
+
+    @pytest.mark.it(
+        "Returns a bytestream type object when passed with a dataframe"
+    )
+    @mock_aws
+    def test_returns_bytestream_type_object_when_passed_with_dataframe(self,s3,bucket):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/short_test_file.csv",["name","email_address"])
+        test_dataframe = obfuscator.get_obfuscated_df()
+        assert isinstance(test_dataframe,pd.DataFrame)
+        result = obfuscator.get_obfuscated_bytestream(test_dataframe)
+        assert isinstance(result, io.BytesIO)
+
+    @pytest.mark.it(
+        "When passed with a dataframe, with file_type as csv, and encoding_type as utf-8, returns correct bytestream"
+    )
+    @mock_aws
+    def test_csv_output_utf8_returns_bytestream(self,s3,bucket):
+        obfuscator = Obfuscator("s3://test-bucket/new_data/short_test_file.csv",["name","email_address"])
+        test_dataframe = obfuscator.get_obfuscated_df()
+        result = obfuscator.get_obfuscated_bytestream(test_dataframe)
+        assert isinstance(result, io.BytesIO)
+        contents = result.getvalue().decode("utf-8")
+        assert "student_id" in contents
+        assert "1234" in contents
+        assert "name" in contents
+        assert "***" in contents
+        assert "course" in contents
+        assert "Software" in contents
+
+
+
+
+#     @pytest.mark.it(
+#         "When passed with a dataframe, with file_type as csv, and encoding_type as utf-16, returns correct bytestream"
+#     )
+#     def test_csv_output_utf16(self, simple_df):
+#         result = convert_df_to_bytestream(
+#             simple_df, file_type="csv", encoding_type="utf-16"
+#         )
+#         assert isinstance(result, io.BytesIO)
+#         contents = result.getvalue().decode("utf-16")
+#         assert "student_id" in contents
+#         assert "1234" in contents
+#         assert "name" in contents
+#         assert "***" in contents
+#         assert "course" in contents
+#         assert "Software" in contents
+
+    # @pytest.mark.it(
+    #     "When passed with a dataframe, with file_type as json, and encoding_type as utf-8, returns correct bytestream"
+    # )
+    # def test_json_output_utf8_returns_bytestream(self,s3,bucket):
+    #     obfuscator = Obfuscator("s3://test-bucket/new_data/short_test_file.json",["name"])
+    #     test_dataframe = obfuscator.get_obfuscated_df()
+    #     result = obfuscator.get_obfuscated_bytestream(test_dataframe)
+    #     assert isinstance(result, io.BytesIO)
+    #     contents = result.getvalue().decode("utf-8")
+    #     assert "student_id" in contents
+    #     assert "1234" in contents
+    #     assert "name" in contents
+    #     assert "***" in contents
+    #     assert "course" in contents
+    #     assert "Software" in contents
+
+#     @pytest.mark.it(
+#         "When passed with a dataframe, with file_type as json, and encoding_type as utf-8-sig, returns correct bytestream"
+#     )
+#     def test_json_output_utf8sig(self, simple_df):
+#         result = convert_df_to_bytestream(simple_df, file_type="json")
+#         assert isinstance(result, io.BytesIO)
+#         contents = result.getvalue().decode("utf-8-sig")
+#         assert "student_id" in contents
+#         assert "1234" in contents
+#         assert "name" in contents
+#         assert "***" in contents
+#         assert "course" in contents
+#         assert "Software" in contents
+
+#     @pytest.mark.it(
+#         "When passed with a dataframe, with file_type as json, and encoding_type as utf-16, returns correct bytestream"
+#     )
+#     def test_json_output_utf16(self, simple_df):
+#         result = convert_df_to_bytestream(
+#             simple_df, file_type="json", encoding_type="utf-16"
+#         )
+#         assert isinstance(result, io.BytesIO)
+#         contents = result.getvalue().decode("utf-16")
+#         assert "student_id" in contents
+#         assert "1234" in contents
+#         assert "name" in contents
+#         assert "***" in contents
+#         assert "course" in contents
+#         assert "Software" in contents
+
+#     @pytest.mark.it(
+#         "When passed with a dataframe, with file_type as parquet, returns correct bytestream"
+#     )
+#     def test_parquet_output(self, simple_df):
+#         result = convert_df_to_bytestream(simple_df, file_type="parquet")
+#         assert isinstance(result, bytes)
+#         assert result.startswith(b"PAR1")
+#         assert result.endswith(b"PAR1")
+
+

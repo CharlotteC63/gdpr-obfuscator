@@ -20,8 +20,6 @@ class Obfuscator:
         The s3 path to the file to be obfuscated.
     pii_fields: list     
         The list of PII fields to be obfuscated.
-    obfuscator_char: str
-        The string to replace PII fields with.
     _bucket_name: str
         The name of the s3 bucket where the file is located.
     _file_key: str
@@ -47,7 +45,7 @@ class Obfuscator:
         
     """
 
-    def __init__(self, file_to_obfuscate: str = "", pii_fields: list = None, obfuscator_char: str = "***"):
+    def __init__(self, file_to_obfuscate: str = "", pii_fields: list = None):
         """
         Parameters
         ----------
@@ -58,7 +56,6 @@ class Obfuscator:
         """
         self.file_to_obfuscate = file_to_obfuscate
         self.pii_fields = pii_fields
-        self.obfuscator_char = obfuscator_char
         self._bucket_name = get_bucket_name(file_to_obfuscate)
         self._file_key = get_file_key(file_to_obfuscate)
         self._file_name = get_file_name_and_type_from_key(file_to_obfuscate)["name"]
@@ -90,6 +87,7 @@ class Obfuscator:
             raise NoPIIFoundInFile("No PII fields have been specified")
         contains_pii = False
         file_contents_copy_df = self.__file_contents_df.copy()
+        print(file_contents_copy_df)
         for pii_field in self.pii_fields:
             if pii_field in file_contents_copy_df.columns:
                 contains_pii = True
@@ -99,7 +97,7 @@ class Obfuscator:
         print(file_contents_copy_df)
         return file_contents_copy_df
     
-    def get_obfuscatd_bytestream(self, obfuscated_df: pd.DataFrame) -> io.BytesIO:
+    def get_obfuscated_bytestream(self, obfuscated_df: pd.DataFrame) -> io.BytesIO:
         """Returns a binary stream (io.BytesIO) for all supported file types (csv, json and parquet), in the chosen encoding
         (utf-8 used as default).
 
@@ -122,9 +120,9 @@ class Obfuscator:
 
         """
         if not isinstance(obfuscated_df, pd.DataFrame):
-            raise TypeError(f"Expected dataframe but received {type(data_df)}")
+            raise TypeError(f"Expected dataframe but received {type(obfuscated_df)}")
         
-        if self.obfuscated_df.empty:
+        if obfuscated_df.empty:
             raise ValueError("Dataframe cannot be empty")
 
         if self._file_type not in ("csv", "json", "parquet"):
