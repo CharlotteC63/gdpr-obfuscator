@@ -46,6 +46,8 @@ def read_as_df(body, file_type, encoding_type="utf-8"):
             for value in data.values():
                 if isinstance(value, list):
                     return pd.DataFrame(value)
+                if not isinstance(value,list):
+                    return pd.DataFrame([data])
             return pd.DataFrame.from_dict(data, orient="index")
 
     elif file_type == "parquet":
