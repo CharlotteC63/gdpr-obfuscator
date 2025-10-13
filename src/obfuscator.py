@@ -7,8 +7,10 @@ from src.utils.get_file_key import get_file_key
 from src.utils.get_file_name_and_type_from_key import get_file_name_and_type_from_key
 from src.utils.read_as_df import read_as_df
 
+
 class NoPIIFoundInFile(Exception):
     pass
+
 
 class Obfuscator:
     """
@@ -18,7 +20,7 @@ class Obfuscator:
     ----------
     file_to_obfuscate: str
         The s3 path to the file to be obfuscated.
-    pii_fields: list     
+    pii_fields: list
         The list of PII fields to be obfuscated.
     _bucket_name: str
         The name of the s3 bucket where the file is located.
@@ -42,7 +44,7 @@ class Obfuscator:
 
     get_obfuscated_bytestream
         Returns a bytestream of the obfuscated file contents, compatible with S3 PutObject.
-        
+
     """
 
     def __init__(self, file_to_obfuscate: str = "", pii_fields: list = None):
@@ -59,11 +61,18 @@ class Obfuscator:
         self._bucket_name = get_bucket_name(file_to_obfuscate)
         self._file_key = get_file_key(file_to_obfuscate)
         self._file_name = get_file_name_and_type_from_key(file_to_obfuscate)["name"]
-        self._file_type = get_file_name_and_type_from_key(file_to_obfuscate)["file_type"]
-        self.__file_contents_bytes = boto3.client("s3").get_object(Bucket=self._bucket_name, Key=self._file_key)["Body"].read()
+        self._file_type = get_file_name_and_type_from_key(file_to_obfuscate)[
+            "file_type"
+        ]
+        self.__file_contents_bytes = (
+            boto3.client("s3")
+            .get_object(Bucket=self._bucket_name, Key=self._file_key)["Body"]
+            .read()
+        )
         self._encoding_type = detect_encoding(self.__file_contents_bytes)
-        self.__file_contents_df = read_as_df(self.__file_contents_bytes, self._file_type, self._encoding_type)
-
+        self.__file_contents_df = read_as_df(
+            self.__file_contents_bytes, self._file_type, self._encoding_type
+        )
 
     def get_obfuscated_df(self, obfuscator_string: str = "***") -> pd.DataFrame:
         """Prints a pandas dataframe of the file's contents with PII columns obfuscated.
@@ -82,7 +91,9 @@ class Obfuscator:
             A copy of the file contents in a dataframe, with columns containing PII obfuscated.
         """
         if self.__file_contents_df.empty:
-            raise NoPIIFoundInFile("The specified PII fields were not found in the specified file")
+            raise NoPIIFoundInFile(
+                "The specified PII fields were not found in the specified file"
+            )
         if not self.pii_fields:
             raise NoPIIFoundInFile("No PII fields have been specified")
         contains_pii = False
@@ -93,10 +104,12 @@ class Obfuscator:
                 contains_pii = True
                 file_contents_copy_df[pii_field] = obfuscator_string
         if contains_pii is False:
-            raise NoPIIFoundInFile("The file does not contain any of the specified PII fields")
+            raise NoPIIFoundInFile(
+                "The file does not contain any of the specified PII fields"
+            )
         print(file_contents_copy_df)
         return file_contents_copy_df
-    
+
     def get_obfuscated_bytestream(self, obfuscated_df: pd.DataFrame) -> io.BytesIO:
         """Returns a binary stream (io.BytesIO) for all supported file types (csv, json and parquet), in the chosen encoding
         (utf-8 used as default).
@@ -121,7 +134,7 @@ class Obfuscator:
         """
         if not isinstance(obfuscated_df, pd.DataFrame):
             raise TypeError(f"Expected dataframe but received {type(obfuscated_df)}")
-        
+
         if obfuscated_df.empty:
             raise ValueError("Dataframe cannot be empty")
 
@@ -180,4 +193,3 @@ class Obfuscator:
 
         else:
             raise ValueError(f"Unsupported format: {self._file_type}")
-        
