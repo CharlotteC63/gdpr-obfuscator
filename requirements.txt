@@ -1,4 +1,5 @@
 pytest
+pytest-timeout
 pytest-testdox
 pg8000
 dotenv
