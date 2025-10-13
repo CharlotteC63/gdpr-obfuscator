@@ -111,6 +111,14 @@ The output will be a bytestream representation of the file with the specified fi
 The bytestream object will be compatible with boto3 Put Object, so the file can then be uploaded to S3.
 The output file format will match the input file format (CSV, JSON or parquet).
 
+### Runtime performance
+
+The runtime performance will depend on the size of the input file and the number of fields to obfuscate.
+
+The module is able to handle files up to 1MB with a runtime of less than 1 minute.
+
+
+
 ## 👤 Author / maintainer
 - Charlotte Campbell (GitHub: @CharlotteC63)
 
