@@ -22,6 +22,8 @@ class TestReadAsDF:
         assert result.iloc[1]["name"] == "Eliza Andrews"
         assert result.iloc[0]["student_id"] == 1234
         assert result.iloc[1]["student_id"] == 2222
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
 
     @pytest.mark.it(
         "When passed with a semicolon-delimited csv file, returns dataframe with correct contents"
@@ -36,6 +38,8 @@ class TestReadAsDF:
         assert result.iloc[1]["name"] == "Eliza Andrews"
         assert result.iloc[0]["student_id"] == 1234
         assert result.iloc[1]["student_id"] == 2222
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
 
     @pytest.mark.it(
         "When passed with a tab-delimited csv file, returns dataframe with correct contents"
@@ -50,14 +54,38 @@ class TestReadAsDF:
         assert result.iloc[1]["name"] == "Eliza Andrews"
         assert result.iloc[0]["student_id"] == 1234
         assert result.iloc[1]["student_id"] == 2222
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
 
     @pytest.mark.it(
-        "When passed with a json file with a single record, returns dataframe with correct contents"
+        "When passed with a comma-delimited csv file, with strings contained in single quotes, returns dataframe with correct contents"
     )
-    def test_returns_dataframe_when_passed_with_json_file_type_single_record(self):
+    def test_returns_dataframe_when_passed_with_comma_delimited_csv_file_type_containing_single_quotes(
+        self,
+    ):
+        csv_body = b"student_id,name\n1234,John Smith\n2222,Eliza Andrews\n"
+        result = read_as_df(csv_body, "csv")
+        assert isinstance(result, pd.DataFrame)
+        assert result.iloc[0]["name"] == "John Smith"
+        assert result.iloc[1]["name"] == "Eliza Andrews"
+        assert result.iloc[0]["student_id"] == 1234
+        assert result.iloc[1]["student_id"] == 2222
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
+
+    @pytest.mark.it(
+        "When passed with a json file with a single record formatted as a dictionary, returns dataframe with correct contents"
+    )
+    def test_returns_dataframe_when_passed_with_json_file_type_single_record_formatted_as_dict(
+        self,
+    ):
         json_body_format1 = b'{"student_id": 1234, "name": "John Smith"}'
         result = read_as_df(json_body_format1, "json")
         assert isinstance(result, pd.DataFrame)
+        assert result.iloc[0]["student_id"] == 1234
+        assert result.iloc[0]["name"] == "John Smith"
+        assert len(result.index) == 1
+        assert len(result.columns) == 2
 
     @pytest.mark.it(
         "When passed with a json file formatted as an array of records, returns dataframe with correct contents"
@@ -72,6 +100,8 @@ class TestReadAsDF:
         assert result.iloc[1]["name"] == "Eliza Andrews"
         assert result.iloc[0]["student_id"] == 1234
         assert result.iloc[1]["student_id"] == 2222
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
 
     @pytest.mark.it(
         "When passed with a json file formatted as a nested array of records, returns dataframe with correct contents"
@@ -86,6 +116,8 @@ class TestReadAsDF:
         assert result.iloc[1]["name"] == "Eliza Andrews"
         assert result.iloc[0]["student_id"] == 1234
         assert result.iloc[1]["student_id"] == 2222
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
 
     @pytest.mark.it("When passed with a parquet file, returns dataframe")
     def test_returns_dataframe_when_passed_with_parquet_file_type(self):
@@ -98,6 +130,8 @@ class TestReadAsDF:
         result = read_as_df(parquet_bytes.getvalue(), "parquet")
         assert isinstance(result, pd.DataFrame)
         assert result.equals(test_df)
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
 
     @pytest.mark.it(
         "Raises ValueError with appropriate message when passed with an unsupported file type"
@@ -119,6 +153,8 @@ class TestReadAsDF:
         assert result.iloc[1]["name"] == "Eliza Andrews"
         assert result.iloc[0]["student_id"] == 1234
         assert result.iloc[1]["student_id"] == 2222
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
 
     @pytest.mark.it("When file is encoded using utf-8-sig, returns correct dataframe")
     def test_returns_correct_dataframe_with_utf8sig_encoding(self):
@@ -129,3 +165,5 @@ class TestReadAsDF:
         assert result.iloc[1]["name"] == "Eliza Andrews"
         assert result.iloc[0]["student_id"] == 1234
         assert result.iloc[1]["student_id"] == 2222
+        assert len(result.index) == 2
+        assert len(result.columns) == 2
