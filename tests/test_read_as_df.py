@@ -60,7 +60,9 @@ class TestReadAsDF:
     @pytest.mark.it(
         "When passed with a comma-delimited csv file, with strings contained in single quotes, returns dataframe with correct contents"
     )
-    def test_returns_dataframe_when_passed_with_comma_delimited_csv_file_type(self):
+    def test_returns_dataframe_when_passed_with_comma_delimited_csv_file_type_containing_single_quotes(
+        self,
+    ):
         csv_body = b"student_id,name\n1234,John Smith\n2222,Eliza Andrews\n"
         result = read_as_df(csv_body, "csv")
         assert isinstance(result, pd.DataFrame)
@@ -74,7 +76,9 @@ class TestReadAsDF:
     @pytest.mark.it(
         "When passed with a json file with a single record formatted as a dictionary, returns dataframe with correct contents"
     )
-    def test_returns_dataframe_when_passed_with_json_file_type_single_record_formatted_as_dict(self):
+    def test_returns_dataframe_when_passed_with_json_file_type_single_record_formatted_as_dict(
+        self,
+    ):
         json_body_format1 = b'{"student_id": 1234, "name": "John Smith"}'
         result = read_as_df(json_body_format1, "json")
         assert isinstance(result, pd.DataFrame)
