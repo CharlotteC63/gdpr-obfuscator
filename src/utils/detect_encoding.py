@@ -20,11 +20,7 @@ def detect_encoding(raw_bytes: bytes):
 
     """
     try:
-        possible_encodings = [
-            "utf-8",
-            "utf-8-sig",
-            "utf-16"
-        ]
+        possible_encodings = ["utf-8", "utf-8-sig", "utf-16"]
         for encoding in possible_encodings:
             try:
                 decoded = raw_bytes.decode(encoding)

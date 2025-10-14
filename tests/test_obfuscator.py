@@ -633,7 +633,9 @@ class TestObfuscatorRuntime:
 
 class TestIntegrationOfUtilFunctions:
 
-    @pytest.mark.it("When passed with a utf-16 encoded csv file, returns correct bytestream containing obfuscated data")
+    @pytest.mark.it(
+        "When passed with a utf-16 encoded csv file, returns correct bytestream containing obfuscated data"
+    )
     def test_returns_correct_bytestream_for_utf16_encoded_csv_file(self, s3, bucket):
         obfuscator = Obfuscator(
             "s3://test-bucket/new_data/utf16_test_file.csv",
@@ -655,7 +657,9 @@ class TestIntegrationOfUtilFunctions:
         assert "email_address" in contents
         assert "***" in contents
 
-    @pytest.mark.it("When passed with a utf-16 encoded json file, returns correct bytestream containing obfuscated data")
+    @pytest.mark.it(
+        "When passed with a utf-16 encoded json file, returns correct bytestream containing obfuscated data"
+    )
     def test_returns_correct_bytestream_for_utf16_encoded_json_file(self, s3, bucket):
         obfuscator = Obfuscator(
             "s3://test-bucket/new_data/utf16_test_file.json",
@@ -677,8 +681,10 @@ class TestIntegrationOfUtilFunctions:
         assert "email_address" in contents
         assert "***" in contents
 
-    @pytest.mark.it("When passed with a utf-8-sig encoded csv file, returns correct bytestream containing obfuscated data")
-    def test_returns_correct_bytestream_for_utf16_encoded_csv_file(self, s3, bucket):
+    @pytest.mark.it(
+        "When passed with a utf-8-sig encoded csv file, returns correct bytestream containing obfuscated data"
+    )
+    def test_returns_correct_bytestream_for_utf8sig_encoded_csv_file(self, s3, bucket):
         obfuscator = Obfuscator(
             "s3://test-bucket/new_data/utf8sig_test_file.csv",
             ["name", "email_address"],
@@ -699,8 +705,10 @@ class TestIntegrationOfUtilFunctions:
         assert "email_address" in contents
         assert "***" in contents
 
-    @pytest.mark.it("When passed with a utf-8-sig encoded json file, returns correct bytestream containing obfuscated data")
-    def test_returns_correct_bytestream_for_utf16_encoded_json_file(self, s3, bucket):
+    @pytest.mark.it(
+        "When passed with a utf-8-sig encoded json file, returns correct bytestream containing obfuscated data"
+    )
+    def test_returns_correct_bytestream_for_utf8sig_encoded_json_file(self, s3, bucket):
         obfuscator = Obfuscator(
             "s3://test-bucket/new_data/utf8sig_test_file.json",
             ["name", "email_address"],
@@ -720,7 +728,7 @@ class TestIntegrationOfUtilFunctions:
         assert "2025-03-17" in contents
         assert "email_address" in contents
         assert "***" in contents
-    
+
     @pytest.mark.it("When passed with an invalid bucket name, raises appropriate error")
     def test_raises_appropriate_error_with_invalid_bucket_name(self, s3, bucket):
         with pytest.raises(ValueError) as err:
