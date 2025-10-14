@@ -20,12 +20,7 @@ def detect_encoding(raw_bytes: bytes):
 
     """
     try:
-        possible_encodings = [
-            "utf-8",
-            "utf-8-sig",
-            "utf-16",
-            "cp1252",
-        ]
+        possible_encodings = ["utf-8", "utf-8-sig", "utf-16"]
         for encoding in possible_encodings:
             try:
                 decoded = raw_bytes.decode(encoding)
@@ -37,5 +32,5 @@ def detect_encoding(raw_bytes: bytes):
                 continue
     except Exception:
         raise ValueError(
-            "Could not decode using utf-8, utf-8-sig, utf-16 or cp1252, check file encoding"
+            "Could not decode using utf-8, utf-8-sig or utf-16, check file encoding"
         )

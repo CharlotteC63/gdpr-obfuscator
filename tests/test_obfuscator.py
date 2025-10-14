@@ -1,9 +1,10 @@
+import pytest
+import time
+import pandas as pd
 import os
 import io
 from io import BytesIO
 import boto3
-import pytest
-import pandas as pd
 from moto import mock_aws
 from src.obfuscator import Obfuscator
 from src.obfuscator import NoPIIFoundInFile
@@ -63,6 +64,22 @@ def bucket(s3):
     with open("tests/data/dummy_data_long.parquet", "rb") as file6:
         s3.put_object(
             Body=file6, Bucket="test-bucket", Key="new_data/long_test_file.parquet"
+        )
+    with open("tests/data/dummy_data_utf16.csv", "rb") as file7:
+        s3.put_object(
+            Body=file7, Bucket="test-bucket", Key="new_data/utf16_test_file.csv"
+        )
+    with open("tests/data/dummy_data_utf16.json", "rb") as file8:
+        s3.put_object(
+            Body=file8, Bucket="test-bucket", Key="new_data/utf16_test_file.json"
+        )
+    with open("tests/data/dummy_data_utf8sig.csv", "rb") as file9:
+        s3.put_object(
+            Body=file9, Bucket="test-bucket", Key="new_data/utf8sig_test_file.csv"
+        )
+    with open("tests/data/dummy_data_utf8sig.json", "rb") as file10:
+        s3.put_object(
+            Body=file10, Bucket="test-bucket", Key="new_data/utf8sig_test_file.json"
         )
     s3.put_object(Body="", Bucket="test-bucket", Key="new_data/empty_test_file.csv")
     s3.put_object(Body="", Bucket="test-bucket", Key="new_data/empty_test_file.json")
@@ -592,3 +609,147 @@ class TestGetObfuscatedBytestreamMethod:
         assert "Contents" in response
         keys = [obj["Key"] for obj in response["Contents"]]
         assert "obfuscated_data/short_test_file.parquet" in keys
+
+
+class TestObfuscatorRuntime:
+
+    @pytest.mark.it(
+        "Obfuscator module can handle obfuscating a 1 mb file and returning the bytestream in under 60 seconds"
+    )
+    def test_obfuscator_handles_a_1mb_file_in_under_60_seconds(self, s3, bucket):
+        head = s3.head_object(Bucket="test-bucket", Key="new_data/long_test_file.csv")
+        file_size_bytes = head["ContentLength"]
+        max_time = (file_size_bytes / 1000000) * 60.0
+        start = time.perf_counter()
+        obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/long_test_file.csv",
+            ["name", "email_address"],
+        )
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        obfuscator.get_obfuscated_bytestream(obfuscated_df)
+        duration = time.perf_counter() - start
+        assert duration < max_time
+
+
+class TestIntegrationOfUtilFunctions:
+
+    @pytest.mark.it(
+        "When passed with a utf-16 encoded csv file, returns correct bytestream containing obfuscated data"
+    )
+    def test_returns_correct_bytestream_for_utf16_encoded_csv_file(self, s3, bucket):
+        obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/utf16_test_file.csv",
+            ["name", "email_address"],
+        )
+        assert obfuscator._encoding_type == "utf-16"
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        obfuscated_bytestream = obfuscator.get_obfuscated_bytestream(obfuscated_df)
+        assert isinstance(obfuscated_bytestream, io.BytesIO)
+        contents = obfuscated_bytestream.getvalue().decode("utf-16")
+        assert "student_id" in contents
+        assert "1234" in contents
+        assert "name" in contents
+        assert "***" in contents
+        assert "course" in contents
+        assert "Software" in contents
+        assert "cohort_graduation_date" in contents
+        assert "2025-03-17" in contents
+        assert "email_address" in contents
+        assert "***" in contents
+
+    @pytest.mark.it(
+        "When passed with a utf-16 encoded json file, returns correct bytestream containing obfuscated data"
+    )
+    def test_returns_correct_bytestream_for_utf16_encoded_json_file(self, s3, bucket):
+        obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/utf16_test_file.json",
+            ["name", "email_address"],
+        )
+        assert obfuscator._encoding_type == "utf-16"
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        obfuscated_bytestream = obfuscator.get_obfuscated_bytestream(obfuscated_df)
+        assert isinstance(obfuscated_bytestream, io.BytesIO)
+        contents = obfuscated_bytestream.getvalue().decode("utf-16")
+        assert "student_id" in contents
+        assert "1234" in contents
+        assert "name" in contents
+        assert "***" in contents
+        assert "course" in contents
+        assert "Software" in contents
+        assert "cohort_graduation_date" in contents
+        assert "2025-03-17" in contents
+        assert "email_address" in contents
+        assert "***" in contents
+
+    @pytest.mark.it(
+        "When passed with a utf-8-sig encoded csv file, returns correct bytestream containing obfuscated data"
+    )
+    def test_returns_correct_bytestream_for_utf8sig_encoded_csv_file(self, s3, bucket):
+        obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/utf8sig_test_file.csv",
+            ["name", "email_address"],
+        )
+        assert obfuscator._encoding_type == "utf-8-sig"
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        obfuscated_bytestream = obfuscator.get_obfuscated_bytestream(obfuscated_df)
+        assert isinstance(obfuscated_bytestream, io.BytesIO)
+        contents = obfuscated_bytestream.getvalue().decode("utf-8-sig")
+        assert "student_id" in contents
+        assert "1234" in contents
+        assert "name" in contents
+        assert "***" in contents
+        assert "course" in contents
+        assert "Software" in contents
+        assert "cohort_graduation_date" in contents
+        assert "2025-03-17" in contents
+        assert "email_address" in contents
+        assert "***" in contents
+
+    @pytest.mark.it(
+        "When passed with a utf-8-sig encoded json file, returns correct bytestream containing obfuscated data"
+    )
+    def test_returns_correct_bytestream_for_utf8sig_encoded_json_file(self, s3, bucket):
+        obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/utf8sig_test_file.json",
+            ["name", "email_address"],
+        )
+        assert obfuscator._encoding_type == "utf-8-sig"
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        obfuscated_bytestream = obfuscator.get_obfuscated_bytestream(obfuscated_df)
+        assert isinstance(obfuscated_bytestream, io.BytesIO)
+        contents = obfuscated_bytestream.getvalue().decode("utf-8-sig")
+        assert "student_id" in contents
+        assert "1234" in contents
+        assert "name" in contents
+        assert "***" in contents
+        assert "course" in contents
+        assert "Software" in contents
+        assert "cohort_graduation_date" in contents
+        assert "2025-03-17" in contents
+        assert "email_address" in contents
+        assert "***" in contents
+
+    @pytest.mark.it("When passed with an invalid bucket name, raises appropriate error")
+    def test_raises_appropriate_error_with_invalid_bucket_name(self, s3, bucket):
+        with pytest.raises(ValueError) as err:
+            Obfuscator(
+                "s3://test_bucket/new_data/short_test_file.parquet",
+                ["name", "email_address"],
+            )
+        assert (
+            str(err.value)
+            == "Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+        )
+
+    @pytest.mark.it(
+        "When passed with an unsupported file format, raises appropriate error"
+    )
+    def test_raises_appropriate_error_with_unsupported_file_format(self, s3, bucket):
+        with pytest.raises(ValueError) as err:
+            Obfuscator(
+                "s3://test-bucket/new_data/short_test_file.txt",
+                ["name", "email_address"],
+            )
+        assert (
+            str(err.value) == "file_type not supported (must be csv, json or parquet)"
+        )
