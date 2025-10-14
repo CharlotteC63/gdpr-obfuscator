@@ -32,11 +32,11 @@ def read_as_df(body, file_type, encoding_type="utf-8"):
         return pd.DataFrame()  # handles empty files
     if file_type == "csv":
         if ";" in body.decode(encoding_type, errors="ignore"):
-            return pd.read_csv(buffer, sep=";")
+            return pd.read_csv(buffer, sep=";",encoding=encoding_type)
         if "\t" in body.decode(encoding_type, errors="ignore"):
-            return pd.read_csv(buffer, sep="\t")
+            return pd.read_csv(buffer, sep="\t",encoding=encoding_type)
         else:
-            return pd.read_csv(buffer)
+            return pd.read_csv(buffer,encoding=encoding_type)
 
     elif file_type == "json":
         data = json.loads(body.decode(encoding_type))
