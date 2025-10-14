@@ -61,9 +61,7 @@ class Obfuscator:
         self._bucket_name = get_bucket_name(file_to_obfuscate)
         self._file_key = get_file_key(file_to_obfuscate)
         self._file_name = get_file_name_and_type_from_key(file_to_obfuscate)["name"]
-        self._file_type = get_file_name_and_type_from_key(file_to_obfuscate)[
-            "file_type"
-        ]
+        self._file_type = get_file_name_and_type_from_key(file_to_obfuscate)["file_type"]
         self.__file_contents_bytes = (
             boto3.client("s3")
             .get_object(Bucket=self._bucket_name, Key=self._file_key)["Body"]
