@@ -58,7 +58,7 @@ pytest tests/
 ### Assumptions and prerequisites
 
 The following assumptions are made about the data being processed:
-1. Data is stored in CSV, JSON, or parquet format in S3.
+1. Data is stored in CSV, JSON, or parquet format in S3. Supported encoding types for CSV and JSON include UTF-8, UTF-16 and UTF-8-SIG.
 2. Fields containing GDPR-sensitive data are known and will be supplied in advance.
 3. Data records will be supplied with a primary key.
 
