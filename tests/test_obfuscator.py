@@ -753,22 +753,3 @@ class TestIntegrationOfUtilFunctions:
         assert (
             str(err.value) == "file_type not supported (must be csv, json or parquet)"
         )
-
-
-# class TestObfuscatorModuleSize:
-
-#     @pytest.mark.it(
-#         "Obfuscator module size must not exceed memory limits for Python Lambda dependencies"
-#     )
-#     def test_obfuscator_module_size_does_not_exceed_memory_limits_for_python_lambda_dependencies(
-#         self, s3, bucket
-#     ):
-#         ## THIS TEST NEEDS COMPLETING
-#         package_dir = "lambda_package"
-#         zipped_path = "lambda_package.zip"
-
-#         unzipped_size = get_directory_size(package_dir)
-#         zipped_size = os.path.getsize(zipped_path)
-
-#         assert unzipped_size <= 250 * 1024 * 1024, f"Unzipped size {unzipped_size/1024**2:.2f}MB exceeds 250MB limit"
-#         assert zipped_size <= 50 * 1024 * 1024, f"Zipped size {zipped_size/1024**2:.2f}MB exceeds 50MB direct-upload limit"
