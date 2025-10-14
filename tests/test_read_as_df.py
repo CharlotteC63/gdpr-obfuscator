@@ -146,8 +146,9 @@ class TestReadAsDF:
 
     @pytest.mark.it("When file is encoded using utf-16, returns correct dataframe")
     def test_returns_correct_dataframe_with_utf16_encoding(self):
-        csv_body = b"student_id,name\n1234,John Smith\n2222,Eliza Andrews\n"
-        result = read_as_df(csv_body, "csv", "utf-16")
+        body_string = "student_id,name\n1234,John Smith\n2222,Eliza Andrews\n"
+        utf16_body = body_string.encode("utf-16")
+        result = read_as_df(utf16_body, "csv", "utf-16")
         assert isinstance(result, pd.DataFrame)
         assert result.iloc[0]["name"] == "John Smith"
         assert result.iloc[1]["name"] == "Eliza Andrews"
@@ -158,8 +159,9 @@ class TestReadAsDF:
 
     @pytest.mark.it("When file is encoded using utf-8-sig, returns correct dataframe")
     def test_returns_correct_dataframe_with_utf8sig_encoding(self):
-        csv_body = b"student_id,name\n1234,John Smith\n2222,Eliza Andrews\n"
-        result = read_as_df(csv_body, "csv", "utf-8-sig")
+        body_string = "student_id,name\n1234,John Smith\n2222,Eliza Andrews\n"
+        utf8sig_body = body_string.encode("utf-8-sig")
+        result = read_as_df(utf8sig_body, "csv", "utf-8-sig")
         assert isinstance(result, pd.DataFrame)
         assert result.iloc[0]["name"] == "John Smith"
         assert result.iloc[1]["name"] == "Eliza Andrews"
