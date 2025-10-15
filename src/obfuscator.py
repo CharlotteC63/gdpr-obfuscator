@@ -98,7 +98,6 @@ class Obfuscator:
             raise NoPIIFoundInFile("No PII fields have been specified")
         contains_pii = False
         file_contents_copy_df = self.__file_contents_df.copy()
-        print(file_contents_copy_df)
         for pii_field in self.pii_fields:
             if pii_field in file_contents_copy_df.columns:
                 contains_pii = True
