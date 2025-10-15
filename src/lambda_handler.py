@@ -1,5 +1,3 @@
-import pandas as pd
-import pyarrow as pa
 import boto3
 from src.obfuscator import Obfuscator
 
