@@ -4,4 +4,4 @@ pytest-testdox
 boto3
 moto
 pandas
-pyarrow
+fastparquet

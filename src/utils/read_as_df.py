@@ -51,7 +51,7 @@ def read_as_df(body, file_type, encoding_type="utf-8"):
             return pd.DataFrame.from_dict(data, orient="index")
 
     elif file_type == "parquet":
-        return pd.read_parquet(buffer, engine="pyarrow")
+        return pd.read_parquet(buffer, engine="fastparquet")
     else:
         raise ValueError(
             f"Unsupported file type: {file_type}, must be csv, json or parquet"
