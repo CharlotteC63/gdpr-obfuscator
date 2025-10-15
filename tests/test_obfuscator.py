@@ -108,6 +108,46 @@ class TestObfuscatorProperties:
         assert hasattr(test_obfuscator, "pii_fields")
         assert test_obfuscator.pii_fields == ["name"]
 
+    @pytest.mark.it("Check that the Obfuscator class has the bucket_name property")
+    def test_bucket_name_property(self, s3, bucket):
+        test_obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/short_test_file.csv", ["name"]
+        )
+        assert hasattr(test_obfuscator, "bucket_name")
+        assert test_obfuscator.bucket_name == "test-bucket"
+
+    @pytest.mark.it("Check that the Obfuscator class has the file_name property")
+    def test_file_name_property(self, s3, bucket):
+        test_obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/short_test_file.csv", ["name"]
+        )
+        assert hasattr(test_obfuscator, "file_name")
+        assert test_obfuscator.file_name == "short_test_file.csv"
+
+    @pytest.mark.it("Check that the Obfuscator class has the _file_key property")
+    def test_file_key_property(self, s3, bucket):
+        test_obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/short_test_file.csv", ["name"]
+        )
+        assert hasattr(test_obfuscator, "_file_key")
+        assert test_obfuscator._file_key == "new_data/short_test_file.csv"
+
+    @pytest.mark.it("Check that the Obfuscator class has the _file_type property")
+    def test_file_type_property(self, s3, bucket):
+        test_obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/short_test_file.csv", ["name"]
+        )
+        assert hasattr(test_obfuscator, "_file_type")
+        assert test_obfuscator._file_type == "csv"
+
+    @pytest.mark.it("Check that the Obfuscator class has the _encoding_type property")
+    def test_encoding_type_property(self, s3, bucket):
+        test_obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/short_test_file.csv", ["name"]
+        )
+        assert hasattr(test_obfuscator, "_encoding_type")
+        assert test_obfuscator._encoding_type == "utf-8"
+
 
 class TestGetObfuscatedDFMethod:
 

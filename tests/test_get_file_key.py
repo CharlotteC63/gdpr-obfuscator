@@ -37,11 +37,16 @@ class TestGetFileKey:
     @pytest.mark.it(
         "When passed with a path where the key does not follow the forward slash after bucket name, raises ValueError"
     )
-    def test_raise_ValueError_when_key_name_does_not_follow_forward_slash_after_bucket_name_in_path(self):
+    def test_raise_ValueError_when_key_name_does_not_follow_forward_slash_after_bucket_name_in_path(
+        self,
+    ):
         test_path = "s3://test-bucket/"
         with pytest.raises(ValueError) as err:
             get_file_key(test_path)
-        assert str(err.value) == "Key not found in the file path following bucket name and forward slash"
+        assert (
+            str(err.value)
+            == "Key not found in the file path following bucket name and forward slash"
+        )
 
     @pytest.mark.it(
         "When passed with a path where the key does not follow the bucket name, raises ValueError"

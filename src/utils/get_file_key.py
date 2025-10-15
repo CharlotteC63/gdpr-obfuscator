@@ -43,7 +43,9 @@ def get_file_key(path):
                 key = path.split(f"{bucket_name}.s3.amazonaws.com/", 1)[1]
 
         if key == "":
-            raise ValueError("Key not found in the file path following bucket name and forward slash")
+            raise ValueError(
+                "Key not found in the file path following bucket name and forward slash"
+            )
 
         if len(key.encode("utf-8")) > 1024:
             raise ValueError(
@@ -51,8 +53,4 @@ def get_file_key(path):
             )
         return key
     except IndexError:
-        raise ValueError(
-            "Key not found in the file path following bucket name"
-        )
-
-
+        raise ValueError("Key not found in the file path following bucket name")
