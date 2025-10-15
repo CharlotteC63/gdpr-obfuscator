@@ -63,7 +63,10 @@ class TestLambdaHandler:
         result = lambda_handler(event, {})
         assert result == {
             "statusCode": 400,
-            "body": "Failed to obfuscate file: Invalid bucket name according to AWS rules, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html",
+            "body": (
+                "Failed to obfuscate file: Invalid bucket name according to AWS rules, "
+                "see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+            ),
         }
 
     @pytest.mark.it(
