@@ -32,21 +32,27 @@ def get_file_key(path):
     if not bucket_name:
         raise ValueError("Could not extract key name as bucket name is invalid")
 
-    if path.startswith(("s3://", "arn")):
-        key = path.split(f"{bucket_name}/", 1)[1]
-
-    if path.startswith("https://"):
-        if path.startswith("https://s3.amazonaws.com/"):
+    try:
+        if path.startswith(("s3://", "arn")):
             key = path.split(f"{bucket_name}/", 1)[1]
-        else:
-            key = path.split(f"{bucket_name}.s3.amazonaws.com/", 1)[1]
 
-    if key == "":
-        raise ValueError("Key not found after bucket name")
+        if path.startswith("https://"):
+            if path.startswith("https://s3.amazonaws.com/"):
+                key = path.split(f"{bucket_name}/", 1)[1]
+            else:
+                key = path.split(f"{bucket_name}.s3.amazonaws.com/", 1)[1]
 
-    if len(key.encode("utf-8")) > 1024:
+        if key == "":
+            raise ValueError("Key not found in the file path following bucket name and forward slash")
+
+        if len(key.encode("utf-8")) > 1024:
+            raise ValueError(
+                "S3 object key exceeds the maximum length of 1,024 bytes (UTF-8 encoded)"
+            )
+        return key
+    except IndexError:
         raise ValueError(
-            "S3 object key exceeds the maximum length of 1,024 bytes (UTF-8 encoded)"
+            "Key not found in the file path following bucket name"
         )
 
-    return key
+
