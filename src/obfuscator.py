@@ -22,12 +22,12 @@ class Obfuscator:
         The s3 path to the file to be obfuscated.
     pii_fields: list
         The list of PII fields to be obfuscated.
-    _bucket_name: str
+    bucket_name: str
         The name of the s3 bucket where the file is located.
+    file_name: str
+        The name of the file (without the file type extension).
     _file_key: str
         The key of the file in the s3 bucket.
-    _file_name: str
-        The name of the file (without the file type extension).
     _file_type: str
         The file type of the file (e.g. csv, json, parquet).
     __file_contents_bytes: bytes
@@ -58,15 +58,15 @@ class Obfuscator:
         """
         self.file_to_obfuscate = file_to_obfuscate
         self.pii_fields = pii_fields
-        self._bucket_name = get_bucket_name(file_to_obfuscate)
+        self.bucket_name = get_bucket_name(file_to_obfuscate)
+        self.file_name = get_file_name_and_type_from_key(file_to_obfuscate)["name"]
         self._file_key = get_file_key(file_to_obfuscate)
-        self._file_name = get_file_name_and_type_from_key(file_to_obfuscate)["name"]
         self._file_type = get_file_name_and_type_from_key(file_to_obfuscate)[
             "file_type"
         ]
         self.__file_contents_bytes = (
             boto3.client("s3")
-            .get_object(Bucket=self._bucket_name, Key=self._file_key)["Body"]
+            .get_object(Bucket=self.bucket_name, Key=self._file_key)["Body"]
             .read()
         )
         self._encoding_type = detect_encoding(self.__file_contents_bytes)
