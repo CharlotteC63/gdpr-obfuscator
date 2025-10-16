@@ -2,7 +2,7 @@
 
 PROJECT_NAME = gdpr-obfuscator
 REGION = eu-north-1
-PYTHON_INTERPRETER = python3
+PYTHON_INTERPRETER = python3.13
 WD=$(shell pwd)
 PYTHONPATH=${WD}
 SHELL := /bin/bash 
@@ -16,7 +16,7 @@ endef
 # Create a virtual environment
 create-environment:
 	@echo ">>> Creating local virtual environment"
-	python3 -m venv venv
+	$(PYTHON_INTERPRETER) -m venv venv
 
 requirements: create-environment
 	venv/bin/pip install -r requirements.txt
