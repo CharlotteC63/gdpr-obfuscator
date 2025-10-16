@@ -125,7 +125,7 @@ class TestReadAsDF:
             {"student_id": [1234, 2222], "name": ["John Smith", "Eliza Andrews"]}
         )
         parquet_bytes = io.BytesIO()
-        test_df.to_parquet(parquet_bytes, engine="pyarrow")
+        test_df.to_parquet(parquet_bytes, engine="fastparquet")
         parquet_bytes.seek(0)
         result = read_as_df(parquet_bytes.getvalue(), "parquet")
         assert isinstance(result, pd.DataFrame)

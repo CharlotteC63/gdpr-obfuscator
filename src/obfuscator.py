@@ -147,8 +147,8 @@ class Obfuscator:
                 io.BytesIO()
             )  # creates an in-memory binary buffer to hold the parquet file
             obfuscated_df.to_parquet(
-                buffer, engine="pyarrow", index=False
-            )  # writes the dataframe to the buffer in parquet format using pyarrow
+                buffer, engine="fastparquet", index=False
+            )  # writes the dataframe to the buffer in parquet format using fastparquet
             buffer.seek(
                 0
             )  # resets the cursor to the beginning of the buffer, so it can be read from the start
