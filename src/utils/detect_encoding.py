@@ -5,18 +5,18 @@ def detect_encoding(raw_bytes: bytes):
     Parameters
     ----------
     raw_bytes : bytes
-        Binary encoded data read from the s3 object, yet to be decoded.
+        Binary encoded data read from the s3 object (a csv or json file).
 
     Returns
     ----------
     str
-        The name of the encoding that successfully decodes the bytes.
+        The name of the encoding that successfully decodes the bytes ('utf-8', 'utf-8-sig' or 'utf-16').
 
     Raises
     ----------
     UnicodeDecodeError
-        When passed with raw bytes of an encoding type not supported (supported encoding types include:
-        utf-8, utf-16, utf-8-sig, ISO-8859-1, cp1252 and utf-3).
+        When passed with raw bytes of an unsupported encoding type (supported encoding types include:
+        utf-8, utf-8-sig, and utf-16).
 
     """
     try:
