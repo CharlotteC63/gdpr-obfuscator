@@ -568,7 +568,7 @@ class TestGetObfuscatedBytestreamMethod:
         test_dataframe = obfuscator.get_obfuscated_df()
         result = obfuscator.get_obfuscated_bytestream(test_dataframe)
         assert isinstance(result, bytes)
-        contents = pd.read_parquet(BytesIO(result), engine="pyarrow")
+        contents = pd.read_parquet(BytesIO(result), engine="fastparquet")
         assert "student_id" in contents.columns
         assert contents["student_id"].iloc[0] == 1234
         assert "name" in contents.columns
