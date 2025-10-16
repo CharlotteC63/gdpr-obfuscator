@@ -1,5 +1,12 @@
-from src.utils.get_bucket_name import get_bucket_name
+import os
 
+if 'LAMBDA_TASK_ROOT' in os.environ:
+    # Running in Lambda (deployment)
+    from utils.get_bucket_name import get_bucket_name
+else:
+    # Running locally (dev)
+    from src.utils.get_bucket_name import get_bucket_name
+    
 
 def get_file_key(path):
     """

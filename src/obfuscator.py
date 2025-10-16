@@ -1,11 +1,22 @@
 import io
 import boto3
 import pandas as pd
-from src.utils.detect_encoding import detect_encoding
-from src.utils.get_bucket_name import get_bucket_name
-from src.utils.get_file_key import get_file_key
-from src.utils.get_file_name_and_type_from_key import get_file_name_and_type_from_key
-from src.utils.read_as_df import read_as_df
+import os
+
+if 'LAMBDA_TASK_ROOT' in os.environ:
+    # Running in Lambda (deployment)
+    from utils.detect_encoding import detect_encoding
+    from utils.get_bucket_name import get_bucket_name
+    from utils.get_file_key import get_file_key
+    from utils.get_file_name_and_type_from_key import get_file_name_and_type_from_key
+    from utils.read_as_df import read_as_df
+else:
+    # Running locally (dev)
+    from src.utils.detect_encoding import detect_encoding
+    from src.utils.get_bucket_name import get_bucket_name
+    from src.utils.get_file_key import get_file_key
+    from src.utils.get_file_name_and_type_from_key import get_file_name_and_type_from_key
+    from src.utils.read_as_df import read_as_df
 
 
 class NoPIIFoundInFile(Exception):
