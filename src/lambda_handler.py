@@ -1,5 +1,12 @@
 import boto3
-from src.obfuscator import Obfuscator
+import os
+
+if 'LAMBDA_TASK_ROOT' in os.environ:
+    # Running in Lambda (deployment)
+    from obfuscator import Obfuscator
+else:
+    # Running locally (dev)
+    from src.obfuscator import Obfuscator
 
 
 def lambda_handler(event, context):
