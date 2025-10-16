@@ -50,3 +50,19 @@ audit:
 
 ## Run all checks
 run-checks: security-test run-black lint unit-test check-coverage audit
+
+## Build the zip files necessary to use the module in AWS Lambda
+
+run-build:
+	@echo "Zipping dependencies from dependencies-layer"
+	cd dependencies-layer && zip -r ../dependencies-layer.zip .
+	@echo "Zip file dependencies-layer.zip created 🎉"
+
+	@echo "Zipping deployment-package"
+	rm -rf deployment-package
+	mkdir deployment-package
+	cp -r src/* deployment-package/
+	cd deployment-package && zip -r ../deployment-package.zip .
+	@echo "Zip file deployment-package.zip created 🎉"
+
+	@echo "Build complete ✅"
