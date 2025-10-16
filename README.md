@@ -98,10 +98,11 @@ For example, the input might be:
 ```
 
 To deploy the module to AWS Lambda, follow these steps:
-1. Go to the AWS Lambda Console and create a new Lambda function. For Runtime, select Python 3.13.
-2. Go to the 'Layers' tab on the left navigation panel and select 'Create layer'. Select 'Upload a .zip file', then 'Choose file', then upload `dependencies-layer.zip`. Under 'Compatible runtimes' select 'Python 3.13', then select 'Create'. Navigate back to the Lambda function you created, select 'Layers' from the left navigation panel, then 'Add a layer'. Select 'Custom layers', then select the layer you just created, then select 'Add'.
-3. In the 'Code' tab within the AWS Lambda Console, select 'Upload from' then '.zip file', then Upload the `deployment-package.zip` to the Lambda function, as the function code.
-4. Go to the IAM Console in AWS and navigate to 'Roles'. Select the role for the Lambda function you just created (it will have a name starting with [your-lambda-function-name]-role-...), then select 'Add Permissions', then 'Create Inline Policy'. In the JSON tab, paste the following policy, replacing my-ingestion-bucket with the name of your S3 bucket containing the files to be obfuscated:
+1. Run make run-build in the terminal. This will create the `dependencies-layer.zip` and `deployment-package.zip` files.
+2. Go to the AWS Lambda Console and create a new Lambda function. For Runtime, select Python 3.13.
+3. Go to the 'Layers' tab on the left navigation panel and select 'Create layer'. Select 'Upload a .zip file', then 'Choose file', then upload `dependencies-layer.zip`. Under 'Compatible runtimes' select 'Python 3.13', then select 'Create'. Navigate back to the Lambda function you created, select 'Layers' from the left navigation panel, then 'Add a layer'. Select 'Custom layers', then select the layer you just created, then select 'Add'.
+4. In the 'Code' tab within the AWS Lambda Console, select 'Upload from' then '.zip file', then Upload the `deployment-package.zip` to the Lambda function, as the function code.
+5. Go to the IAM Console in AWS and navigate to 'Roles'. Select the role for the Lambda function you just created (it will have a name starting with [your-lambda-function-name]-role-...), then select 'Add Permissions', then 'Create Inline Policy'. In the JSON tab, paste the following policy, replacing my-ingestion-bucket with the name of your S3 bucket containing the files to be obfuscated:
 
 ```json
 {
@@ -120,9 +121,9 @@ To deploy the module to AWS Lambda, follow these steps:
 ```
   Select 'Next', then give the policy a name (S3AccessPolicy) and select 'Create Policy'.
 
-5. Go back to the AWS Lambda Console and select your Lambda function. Under 'Configuration', select 'General Configuration', then 'Edit'. Increase the timeout to 1 minute (for files smaller than 1MB - larger files may require a longer timeout). Save the changes.
-6. Test the Lambda function with sample input to ensure it works as expected.
-7. (Optional) You may also wish to set up an S3 event trigger to automatically invoke the Lambda function when new files are uploaded to a specific S3 bucket or prefix.
+6. Go back to the AWS Lambda Console and select your Lambda function. Under 'Configuration', select 'General Configuration', then 'Edit'. Increase the timeout to 1 minute (for files smaller than 1MB - larger files may require a longer timeout). Save the changes.
+7. Test the Lambda function with sample input to ensure it works as expected.
+8. (Optional) You may also wish to set up an S3 event trigger to automatically invoke the Lambda function when new files are uploaded to a specific S3 bucket or prefix.
 
 #### Command line
 
