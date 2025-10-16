@@ -12,9 +12,9 @@ def read_as_df(body, file_type, encoding_type="utf-8"):
     body : bytes
         The contents of a file in bytes.
     file_type : str
-        The formatting type of the file (csv, json or parquet).
+        The formatting type of the file ('csv', 'json' or 'parquet').
     encoding_type : str
-        The encoding type of the file (utf-8, utf-16, utf-8-sig, ISO-8859-1, cp1252 and utf-3)
+        The encoding type of the file ('utf-8', 'utf-16', or 'utf-8-sig')
 
     Returns
     ----------

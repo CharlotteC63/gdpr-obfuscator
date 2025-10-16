@@ -73,11 +73,12 @@ from obfuscator import Obfuscator
 
 #### AWS Lambda
 
-The library is suitable for deployment on a platform within the AWS ecosystem, such as AWS Lambda.
+The library is suitable for deployment on a platform within the AWS ecosystem, such as AWS Lambda. The dependencies
+have already been zipped for use in AWS Lambda, and can be found in the `deployment-package.zip` and `pandas-layer.zip` and `fastparquet-layer.zip` files.
 
-The tool is invoked by sending a JSON string containing:
+The tool is invoked by sending a JSON string to lambda_handler containing:
 - `file_to_obfuscate` (required): The s3 location of the required file for obfuscation (as a string)
-- `pii_fields` (optional): A list of the PII fields to obfuscate (as a list of strings)
+- `pii_fields` (required): A list of the PII fields to obfuscate (as a list of strings)
 
 For example, the input might be:
 
@@ -89,9 +90,9 @@ For example, the input might be:
 ```
 
 To deploy the module to AWS Lambda, follow these steps:
-1. Package the code and dependencies into a deployment package (zip file).
-2. Create a new Lambda function in the AWS Management Console.
-3. Upload the deployment package to the Lambda function.
+1. Create a new Lambda function in the AWS Management Console.
+2. Upload the pandas-pyarrow-layer.zip as a Lambda Layer. Attach the layer to the Lambda function.
+3. Upload the deployment-package.zip to the Lambda function.
 4. Set the handler to point to the module and function (e.g., `obfuscator.lambda_handler`).
 5. Configure the necessary IAM roles and permissions for the Lambda function to access S3.
 6. Set environment variables if needed (e.g., for configuration settings).
