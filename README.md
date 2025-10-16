@@ -50,7 +50,7 @@ The project uses `pytest` for unit and integration testing. Tests run via CI/CD 
 Tests are located in the `tests/` directory, and can be run locally using the command:
 
 ```bash
-pytest tests/
+pytest --testdox -vvvrP tests/
 ```
 
 ## 👩🏼‍💻 How to use this Python module
@@ -91,7 +91,7 @@ For example, the input might be:
 
 To deploy the module to AWS Lambda, follow these steps:
 1. Create a new Lambda function in the AWS Management Console.
-2. Upload the pandas-pyarrow-layer.zip as a Lambda Layer. Attach the layer to the Lambda function.
+2. Upload the fastparquet-pandas-layer.zip as a Lambda Layer. Attach the layer to the Lambda function.
 3. Upload the deployment-package.zip to the Lambda function.
 4. Set the handler to point to the module and function (e.g., `obfuscator.lambda_handler`).
 5. Configure the necessary IAM roles and permissions for the Lambda function to access S3.

@@ -2,7 +2,7 @@ import pytest
 import boto3
 import os
 from moto import mock_aws
-from src.lambda_handler import lambda_handler
+from src.lambda_function import lambda_handler
 
 
 @pytest.fixture(scope="function")
