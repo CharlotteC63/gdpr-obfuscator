@@ -1,0 +1,5 @@
+# Dependencies required for deployment (runtime):
+
+boto3
+pandas
+fastparquet
