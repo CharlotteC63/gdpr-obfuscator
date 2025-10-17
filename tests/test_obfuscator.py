@@ -7,7 +7,7 @@ from io import BytesIO
 import boto3
 from moto import mock_aws
 from src.obfuscator import Obfuscator
-from src.obfuscator import NoPIIFoundInFile
+from src.obfuscator import NoPIIFoundInFileError
 
 
 @pytest.fixture(scope="function")
@@ -152,46 +152,46 @@ class TestObfuscatorProperties:
 class TestGetObfuscatedDFMethod:
 
     @pytest.mark.it(
-        "When file_to_obfuscate attribute is a path to an empty file, raises NoPIIFoundInFile Exception with appropriate message"
+        "When file_to_obfuscate attribute is a path to an empty file, raises NoPIIFoundInFileError Exception with appropriate message"
     )
-    def test_raises_NoPIIFoundInFile_exception_when_file_to_obfuscate_is_empty(
+    def test_raises_NoPIIFoundInFileError_exception_when_file_to_obfuscate_is_empty(
         self, s3, bucket
     ):
         obfuscator = Obfuscator(
             "s3://test-bucket/new_data/empty_test_file.csv", ["name"]
         )
-        with pytest.raises(NoPIIFoundInFile) as err:
+        with pytest.raises(NoPIIFoundInFileError) as err:
             obfuscator.get_obfuscated_df()
         assert (
             str(err.value)
-            == "The specified PII fields were not found in the specified file"
+            == "None of the specified PII fields were found in the file"
         )
 
     @pytest.mark.it(
-        "When pii_fields is empty list, raises NoPIIFoundInFile Exception with appropriate message"
+        "When pii_fields is empty list, raises NoPIIFoundInFileError Exception with appropriate message"
     )
-    def test_raises_NoPIIFoundInFile_exception_when_pii_fields_is_empty_list(
+    def test_raises_NoPIIFoundInFileError_exception_when_pii_fields_is_empty_list(
         self, s3, bucket
     ):
         obfuscator = Obfuscator("s3://test-bucket/new_data/short_test_file.csv", [])
-        with pytest.raises(NoPIIFoundInFile) as err:
+        with pytest.raises(NoPIIFoundInFileError) as err:
             obfuscator.get_obfuscated_df()
         assert str(err.value) == "No PII fields have been specified"
 
     @pytest.mark.it(
-        "When pii_fields are not found in file_to_obfuscate, raises NoPIIFoundInFile Exception with appropriate message"
+        "When none of the pii_fields are not found in file_to_obfuscate, raises NoPIIFoundInFileError Exception with appropriate message"
     )
-    def test_raises_NoPIIFoundInFile_exception_when_file_to_obfuscate_does_not_contain_specified_pii_fields(
+    def test_raises_NoPIIFoundInFileError_exception_when_file_to_obfuscate_does_not_contain_specified_pii_fields(
         self, s3, bucket
     ):
         obfuscator = Obfuscator(
             "s3://test-bucket/new_data/short_test_file.csv", ["phone_number"]
         )
-        with pytest.raises(NoPIIFoundInFile) as err:
+        with pytest.raises(NoPIIFoundInFileError) as err:
             obfuscator.get_obfuscated_df()
         assert (
             str(err.value)
-            == "The file does not contain any of the specified PII fields"
+            == "None of the specified PII fields were found in the file"
         )
 
     @pytest.mark.it(
@@ -482,6 +482,26 @@ class TestGetObfuscatedDFMethod:
         assert obfuscated_df.iloc[2]["course"] == "Cybersecurity"
         assert obfuscated_df.iloc[2]["cohort_graduation_date"] == "2025-03-17"
         assert obfuscated_df.iloc[2]["email_address"] == "***"
+
+    @pytest.mark.it(
+        "When passed with a list of multiple PII fields, and only one is found in the file, obfuscates that one field and does not raise an error"
+    )
+    def test_obfuscates_only_fields_found_in_file_does_not_raise_error_if_one_of_those_fields_not_found_in_file(
+        self, s3, bucket
+    ):
+        obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/short_test_file.csv", ["name","phone_number"]
+        )
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert len(obfuscated_df.index) == 1
+        assert len(obfuscated_df.columns) == 5
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[0]["student_id"] == 1234
+        assert obfuscated_df.iloc[0]["course"] == "Software"
+        assert obfuscated_df.iloc[0]["email_address"] == "j.smith@email.com"
 
 
 class TestGetObfuscatedBytestreamMethod:
