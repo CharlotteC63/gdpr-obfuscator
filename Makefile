@@ -34,7 +34,7 @@ run-black:
 
 ## Run the unit tests
 unit-test:
-	venv/bin/pytest -vv
+	venv/bin/pytest -vv tests/
 
 ## Run the coverage check
 check-coverage:
