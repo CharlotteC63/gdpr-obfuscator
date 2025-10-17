@@ -19,7 +19,7 @@ else:
     from src.utils.read_as_df import read_as_df
 
 
-class NoPIIFoundInFile(Exception):
+class NoPIIFoundInFileError(Exception):
     pass
 
 
@@ -102,11 +102,11 @@ class Obfuscator:
             A copy of the file contents in a dataframe, with columns containing PII obfuscated.
         """
         if self.__file_contents_df.empty:
-            raise NoPIIFoundInFile(
-                "The specified PII fields were not found in the specified file"
+            raise NoPIIFoundInFileError(
+                "None of the specified PII fields were found in the file"
             )
         if not self.pii_fields:
-            raise NoPIIFoundInFile("No PII fields have been specified")
+            raise NoPIIFoundInFileError("No PII fields have been specified")
         contains_pii = False
         file_contents_copy_df = self.__file_contents_df.copy()
         for pii_field in self.pii_fields:
@@ -114,8 +114,8 @@ class Obfuscator:
                 contains_pii = True
                 file_contents_copy_df[pii_field] = obfuscator_string
         if contains_pii is False:
-            raise NoPIIFoundInFile(
-                "The file does not contain any of the specified PII fields"
+            raise NoPIIFoundInFileError(
+                "None of the specified PII fields were found in the file"
             )
         print(file_contents_copy_df)
         return file_contents_copy_df
