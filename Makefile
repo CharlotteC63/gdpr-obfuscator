@@ -42,7 +42,7 @@ check-coverage:
 
 ## Run lint
 lint:
-	venv/bin/flake8 . --max-line-length=150 --exclude=.git,__pycache__,./venv,./layer,./dependencies_db --ignore=E203,W503,E402
+	venv/bin/flake8 . --max-line-length=150 --exclude=.git,__pycache__,./venv,./dependencies-layer --ignore=E203,W503,E402
 
 ## Run audit
 audit:
