@@ -1,3 +1,5 @@
+# Dependencies required for development/testing:
+
 pytest
 pytest-timeout
 pytest-testdox
