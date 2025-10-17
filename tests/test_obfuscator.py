@@ -483,6 +483,26 @@ class TestGetObfuscatedDFMethod:
         assert obfuscated_df.iloc[2]["cohort_graduation_date"] == "2025-03-17"
         assert obfuscated_df.iloc[2]["email_address"] == "***"
 
+    @pytest.mark.it(
+        "When passed with a list of multiple PII fields, and only one is found in the file, obfuscates that one field and does not raise an error"
+    )
+    def test_obfuscates_only_fields_found_in_file_does_not_raise_error_if_one_of_those_fields_not_found_in_file(
+        self, s3, bucket
+    ):
+        obfuscator = Obfuscator(
+            "s3://test-bucket/new_data/short_test_file.csv", ["name","phone_number"]
+        )
+        obfuscated_df = obfuscator.get_obfuscated_df()
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert len(obfuscated_df.index) == 1
+        assert len(obfuscated_df.columns) == 5
+        assert isinstance(obfuscated_df, pd.DataFrame)
+        assert obfuscated_df.iloc[0]["name"] == "***"
+        assert obfuscated_df.iloc[0]["cohort_graduation_date"] == "2025-03-17"
+        assert obfuscated_df.iloc[0]["student_id"] == 1234
+        assert obfuscated_df.iloc[0]["course"] == "Software"
+        assert obfuscated_df.iloc[0]["email_address"] == "j.smith@email.com"
+
 
 class TestGetObfuscatedBytestreamMethod:
 
