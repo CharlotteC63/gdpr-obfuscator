@@ -9,12 +9,12 @@
 
 ### How does obfuscation work?
 
-When provided with (i) an s3 path to a file for obfuscation; and (ii) a list of PII fields, the module:
-- detects the file format and encoding;
-- uses this to read the file from S3 into a pandas DataFrame;
+When provided with (i) an S3 path to a file for obfuscation; and (ii) a list of PII fields, the module:
+- detects the format and encoding type of the file;
+- reads the file from S3 into a pandas DataFrame;
 - replaces all values in the specified PII fields with the obfuscator string (default: "***");
 - converts the DataFrame into a bytestream, preserving original file format and encoding;
-- uploads the obfuscated file to s3 (when invoked in AWS Lambda)
+- uploads the obfuscated file to S3 (when invoked using the provided AWS Lambda function).
 
 ## 📁 File Structure
 
